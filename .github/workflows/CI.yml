@@ -18,35 +18,35 @@ jobs:
           java-version: ${{ matrix.java }}
 
       # opensearch
-      - name: Checkout OpenSearch
-        uses: actions/checkout@v3
-        with:
-          repository: opensearch-project/OpenSearch
-          ref: main
-          path: opensearch
-
-      - name: Publish to Maven Local
-        run: |
-          ./opensearch/gradlew --project-dir ./opensearch/ publishToMavenLocal
-
-      - name: Assemble OpenSearch main
-        run: |
-          ./opensearch/gradlew --project-dir ./opensearch/ assemble
-
-      - name: Copy Snapshot to tmp
-        run: |
-          cp ./opensearch/distribution/archives/linux-tar/build/distributions/opensearch-min-3.0.0-SNAPSHOT-linux-x64.tar.gz /tmp
+#      - name: Checkout OpenSearch
+#        uses: actions/checkout@v3
+#        with:
+#          repository: opensearch-project/OpenSearch
+#          ref: main
+#          path: opensearch
+#
+#      - name: Publish to Maven Local
+#        run: |
+#          ./opensearch/gradlew --project-dir ./opensearch/ publishToMavenLocal
+#
+#      - name: Assemble OpenSearch main
+#        run: |
+#          ./opensearch/gradlew --project-dir ./opensearch/ assemble
+#
+#      - name: Copy Snapshot to tmp
+#        run: |
+#          cp ./opensearch/distribution/archives/linux-tar/build/distributions/opensearch-min-3.0.0-SNAPSHOT-linux-x64.tar.gz /tmp
 
       # opensearch-sdk-java
-      - name: Checkout OpenSearch-SDK-Java
-        uses: actions/checkout@v3
-        with:
-          repository: opensearch-project/opensearch-sdk-java
-          path: sdk
-
-      - name: Publish to Maven Local
-        run: |
-          ./sdk/gradlew --project-dir ./sdk/ publishToMavenLocal
+#      - name: Checkout OpenSearch-SDK-Java
+#        uses: actions/checkout@v3
+#        with:
+#          repository: opensearch-project/opensearch-sdk-java
+#          path: sdk
+#
+#      - name: Publish to Maven Local
+#        run: |
+#          ./sdk/gradlew --project-dir ./sdk/ publishToMavenLocal
 
       # anomaly-detection
       - name: Checkout AD
@@ -67,7 +67,7 @@ jobs:
 
       - name: Build and Run Tests
         run: |
-          ./gradlew build -Dtest.logs=true -PcustomDistributionUrl=/tmp/opensearch-min-3.0.0-SNAPSHOT-linux-x64.tar.gz
+          ./gradlew build -Dtest.logs=true
       - name: Publish to Maven Local
         run: |
           ./gradlew publishToMavenLocal
