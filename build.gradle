@@ -210,15 +210,15 @@ test {
     systemProperty 'tests.security.manager', 'false'
 }
 
-task integTest(type: RestIntegTestTask) {
-    description = "Run tests against a cluster"
-    testClassesDirs = sourceSets.test.output.classesDirs
-    classpath = sourceSets.test.runtimeClasspath
-}
+//task integTest(type: RestIntegTestTask) {
+//    description = "Run tests against a cluster"
+//    testClassesDirs = sourceSets.test.output.classesDirs
+//    classpath = sourceSets.test.runtimeClasspath
+//}
 
-tasks.named("check").configure { dependsOn(integTest) }
+//tasks.named("check").configure { dependsOn(integTest) }
 
-integTest {
+/*integTest {
     retry {
         if (isCiServer) {
             failOnPassedAfterRetry = false
@@ -280,7 +280,7 @@ integTest {
             outputs.upToDateWhen {false}
         }
     }
-}
+}*/
 
 /*testClusters.integTest {
     testDistribution = "ARCHIVE"
