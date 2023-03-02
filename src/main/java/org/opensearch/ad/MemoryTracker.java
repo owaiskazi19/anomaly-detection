@@ -11,8 +11,6 @@
 
 package org.opensearch.ad;
 
-import static org.opensearch.ad.settings.AnomalyDetectorSettings.MODEL_MAX_SIZE_PERCENTAGE;
-
 import java.util.EnumMap;
 import java.util.Locale;
 import java.util.Map;
@@ -26,6 +24,8 @@ import org.opensearch.sdk.SDKClusterService;
 
 import com.amazon.randomcutforest.RandomCutForest;
 import com.amazon.randomcutforest.parkservices.ThresholdedRandomCutForest;
+
+import static org.opensearch.ad.settings.AnomalyDetectorSettings.MODEL_MAX_SIZE_PERCENTAGE;
 
 /**
  * Class to track AD memory usage.

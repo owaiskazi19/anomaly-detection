@@ -18,9 +18,13 @@ jobs:
           java-version: ${{ matrix.java }}
       - name: Checkout AD
         uses: actions/checkout@v3
+        with:
+          repository: opensearch-project/anomaly-detection
+          ref: feature/extensions
+          path: extension
       - name: Run AD Extension
         run: |
-          - ./gradlew run
+          nohup ./extension/gradlew --project-dir ./extension/ run &
       - name: Checkout OpenSearch
         uses: actions/checkout@v3
         with:
@@ -40,15 +44,15 @@ jobs:
 
       - name: Run OpenSearch
         run: |
-          ./opensearch/gradlew --project-dir ./opensearch/ run
+          nohup ./opensearch/gradlew --project-dir ./opensearch/ run &
 
       - name: Checkout AD plugin
         uses: actions/checkout@v3
         with:
           repository: opensearch-project/anomaly-detection
           ref: main
-          path: anomaly
+          path: plugin
 
       - name: Run Integration tests
         run: |
-          ./anomaly/gradlew --project-dir ./anomaly/integTest -Dtests.rest.cluster=localhost:9200 -Dtests.cluster=localhost:9200 -Dtests.clustername="local-cluster"
+          ./plugin/gradlew --project-dir ./plugin/ integTest -Dtests.rest.cluster=localhost:9200 -Dtests.cluster=localhost:9200 -Dtests.clustername="local-cluster"
