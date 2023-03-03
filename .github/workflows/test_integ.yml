@@ -28,8 +28,8 @@ jobs:
       - name: Checkout OpenSearch
         uses: actions/checkout@v3
         with:
-          repository: opensearch-project/OpenSearch
-          ref: main
+          repository: owaiskazi19/OpenSearch
+          ref: path-prefix
           path: opensearch
 
       - name: Assemble OpenSearch main
@@ -44,7 +44,7 @@ jobs:
 
       - name: Run OpenSearch
         run: |
-          nohup ./opensearch/gradlew --project-dir ./opensearch/ run &
+          nohup ./opensearch/gradlew --project-dir ./opensearch/ run -Dopensearch.experimental.feature.extensions.enabled=true &
 
       - name: Checkout AD plugin
         uses: actions/checkout@v3
