@@ -1,0 +1,58 @@
+name: Integration Tests
+on: [push, pull_request]
+
+jobs:
+  Build-ad:
+    strategy:
+      matrix:
+        java: [11,17]
+      fail-fast: false
+
+    name: Integration Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup Java ${{ matrix.java }}
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{ matrix.java }}
+      - name: Checkout AD
+        uses: actions/checkout@v3
+        with:
+          repository: opensearch-project/anomaly-detection
+          ref: feature/extensions
+          path: extension
+      - name: Run AD Extension
+        run: |
+          nohup ./extension/gradlew --project-dir ./extension/ run &
+      - name: Checkout OpenSearch
+        uses: actions/checkout@v3
+        with:
+          repository: owaiskazi19/OpenSearch
+          ref: path-prefix
+          path: opensearch
+
+      - name: Assemble OpenSearch main
+        run: |
+          ./opensearch/gradlew --project-dir ./opensearch/ assemble
+
+      - name: Create extensions.yml
+        run: |
+          mkdir -p ./opensearch/distribution/archives/linux-tar/build/install/opensearch-3.0.0-SNAPSHOT/extensions
+          touch ./opensearch/distribution/archives/linux-tar/build/install/opensearch-3.0.0-SNAPSHOT/extensions/extensions.yml
+          yq -i '."extensions"=[{"name":"ad-extension","uniqueId":"anomaly_detection","hostAddress":"127.0.0.1","port":"4532","version":"1.0","opensearchVersion":"3.0.0","minimumCompatibleVersion":"3.0.0"}]' ./opensearch/distribution/archives/linux-tar/build/install/opensearch-3.0.0-SNAPSHOT/extensions/extensions.yml
+
+      - name: Run OpenSearch
+        run: |
+          nohup ./opensearch/gradlew --project-dir ./opensearch/ run -Dopensearch.experimental.feature.extensions.enabled=true &
+
+      - name: Checkout AD plugin
+        uses: actions/checkout@v3
+        with:
+          repository: opensearch-project/anomaly-detection
+          ref: main
+          path: plugin
+
+      - name: Run Integration tests
+        run: |
+          ./plugin/gradlew --project-dir ./plugin/ integTest -Dtests.rest.cluster=localhost:9200 -Dtests.cluster=localhost:9200 -Dtests.clustername="local-cluster"

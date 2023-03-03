@@ -210,17 +210,15 @@ test {
     systemProperty 'tests.security.manager', 'false'
 }
 
-task integTest(type: RestIntegTestTask) {
-    description = "Run tests against a cluster"
-    testClassesDirs = sourceSets.test.output.classesDirs
-    classpath = sourceSets.test.runtimeClasspath
-}
+//task integTest(type: RestIntegTestTask) {
+//    description = "Run tests against a cluster"
+//    testClassesDirs = sourceSets.test.output.classesDirs
+//    classpath = sourceSets.test.runtimeClasspath
+//}
 
-// Commented this code until https://github.com/opensearch-project/opensearch-sdk-java/issues/144
-/*
-tasks.named("check").configure { dependsOn(integTest) }
+//tasks.named("check").configure { dependsOn(integTest) }
 
-integTest {
+/*integTest {
     retry {
         if (isCiServer) {
             failOnPassedAfterRetry = false
@@ -282,8 +280,7 @@ integTest {
             outputs.upToDateWhen {false}
         }
     }
-}
-*/
+}*/
 
 /*testClusters.integTest {
     testDistribution = "ARCHIVE"
@@ -299,47 +296,37 @@ integTest {
             debugPort += 1
         }
     }
-    plugin(project.tasks.bundlePlugin.archiveFile)*/
+    plugin(project.tasks.bundlePlugin.archiveFile)
+    plugin(provider(new Callable<RegularFile>(){
+        @Override
+        RegularFile call() throws Exception {
+            return new RegularFile() {
+                @Override
+                File getAsFile() {
+                    return configurations.zipArchive.asFileTree.getSingleFile()
+                }
+            }
+        }
+    }))
 
-
-//    Commented this code until we have support of Job Scheduler for extensibility
-//    plugin(provider(new Callable<RegularFile>(){
-//        @Override
-//        RegularFile call() throws Exception {
-//            return new RegularFile() {
-//                @Override
-//                File getAsFile() {
-//                    if (new File("$project.rootDir/$js_resource_folder").exists()) {
-//                        project.delete(files("$project.rootDir/$js_resource_folder"))
-//                    }
-//                    project.mkdir js_resource_folder
-//                    ant.get(src: job_scheduler_build_download,
-//                            dest: js_resource_folder,
-//                            httpusecaches: false)
-//                    return fileTree(js_resource_folder).getSingleFile()
-//                }
-//            }
-//        }
-//    }))
-//
-//    // As of ES 7.7.0 the opendistro-anomaly-detection plugin is being added to the list of plugins for the testCluster during build before
-//    // the opensearch-job-scheduler plugin, which is causing build failures. From the stack trace, this looks like a bug.
-//    //
-//    // Exception in thread "main" java.lang.IllegalArgumentException: Missing plugin [opensearch-job-scheduler], dependency of [opendistro-anomaly-detection]
-//    //       at org.opensearch.plugins.PluginsService.addSortedBundle(PluginsService.java:452)
-//    //
-//    // One explanation is that ES build script sort plugins according to the natural ordering of their names.
-//    // opendistro-anomaly-detection comes before opensearch-job-scheduler.
-//    //
-//    // The following is a comparison of different plugin installation order:
-//    // Before 7.7:
-//    // ./bin/elasticsearch-plugin install --batch file:opendistro-anomaly-detection.zip file:opensearch-job-scheduler.zip
-//    //
-//    // After 7.7:
-//    // ./bin/elasticsearch-plugin install --batch file:opensearch-job-scheduler.zip file:opendistro-anomaly-detection.zip
-//    //
-//    // A temporary hack is to reorder the plugins list after evaluation but prior to task execution when the plugins are installed.
-/*    nodes.each { node ->
+    // As of ES 7.7.0 the opendistro-anomaly-detection plugin is being added to the list of plugins for the testCluster during build before
+    // the opensearch-job-scheduler plugin, which is causing build failures. From the stack trace, this looks like a bug.
+    //
+    // Exception in thread "main" java.lang.IllegalArgumentException: Missing plugin [opensearch-job-scheduler], dependency of [opendistro-anomaly-detection]
+    //       at org.opensearch.plugins.PluginsService.addSortedBundle(PluginsService.java:452)
+    //
+    // One explanation is that ES build script sort plugins according to the natural ordering of their names.
+    // opendistro-anomaly-detection comes before opensearch-job-scheduler.
+    //
+    // The following is a comparison of different plugin installation order:
+    // Before 7.7:
+    // ./bin/elasticsearch-plugin install --batch file:opendistro-anomaly-detection.zip file:opensearch-job-scheduler.zip
+    //
+    // After 7.7:
+    // ./bin/elasticsearch-plugin install --batch file:opensearch-job-scheduler.zip file:opendistro-anomaly-detection.zip
+    //
+    // A temporary hack is to reorder the plugins list after evaluation but prior to task execution when the plugins are installed.
+    nodes.each { node ->
         def plugins = node.plugins
         def firstPlugin = plugins.get(0)
         plugins.remove(0)
